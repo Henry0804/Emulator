@@ -1,0 +1,125 @@
+
+<textarea rows="8" cols="80" id='inp'>;example program
+JSR FUNCTION
+HALT
+/FUNCTION
+RET</textarea>
+
+<br>
+
+<button onclick="run();">Assemble</button><button onclick="proc.Exec();">Execute</button><button onclick="if (clock==null) {clock = setInterval(exec,0);startstop.innerText = 'Stop';} else {clearInterval(clock);clock = null;startstop.innerText = 'Start';}" id="startstop">Start</button><button onclick="speed = Number(prompt('SPEED: '));if (isNaN(speed)||speed>1000) {speed = 1;}">Set Speed</button>
+
+<br>
+
+<input type='text' id="file"></input><br>
+<button onclick='load();'>Load</button><button onclick='list();'>List</button>
+<br>
+
+<div id='listView'></div>
+
+
+<br>
+
+<canvas id="can" width="500" height="500"></canvas>
+
+
+<script>
+
+  let clock = null;
+
+  let speed = 10;
+
+  function load() {
+    let v = file.value;
+    fetch(`./Examples/${v}`).then((d) => {
+      d.text().then((d2) => {inp.value = d2;})
+    });
+  }
+
+  function list() {
+    fetch('./Examples').then((d) => {d.text().then((d2) => {listView.innerHTML = d2;});});
+  }
+
+
+function exec() {
+  let i = 0;
+  while (i++<speed) {
+    proc.Exec();
+  }
+}
+
+  function fill() {
+    for (var i = 0; i < ram.Data.length; i++) {
+      ram.Data[i] = Math.floor(Math.random()*255);
+    }
+  }
+
+  //setInterval(function () {render();},500);
+
+  let screenWidth = 100;
+  let screenHeight = 100;
+  let screenStart = 0x0200;
+  let screenSize = screenWidth*screenHeight;
+
+  let pixelWidth = can.width/screenWidth;
+  let pixelHeight = can.height/screenHeight;
+
+  let ctx = can.getContext('2d');
+
+  ctx.fillStyle = 'black';
+  ctx.fillRect(0,0,500,500);
+
+  function render() {
+    for (var i = screenStart; i < screenSize+screenStart; i++) {
+      let d = ram.Data[i];
+      let i2 = i-screenStart;
+
+      ctx.fillStyle = `rgb(${d},${d},${d})`;
+      ctx.fillRect((i2%screenWidth)*pixelWidth,Math.floor(i2/screenWidth)*pixelHeight,pixelWidth,pixelHeight);
+    }
+
+  }
+
+  function toHex(bin) {
+    return parseInt(bin, 2).toString(16).toUpperCase();
+  }
+
+  let ram = null;
+  let proc = null;
+
+  let data = [0x10,0x00,0x00];
+
+import("./Processor.js").then((p) => {
+  import("./Device.js").then((d) => {
+    ram = new d.default();
+    proc = new p.default(null,16,8);
+    proc.AddDevice(ram);
+    proc.Debug = true;
+
+    proc.Trigger[0x00] = render;
+    proc.Trigger[0x01] = function (d) {buffer += String.fromCharCode(d);}
+    proc.Trigger[0x02] = function (d) {console.info(buffer);buffer = "";}
+
+  });
+});
+
+let buffer = "";
+
+let asm = null;
+
+let out = [];
+
+import('./Assembler.js').then((a) => {
+  asm = a;
+});
+
+
+//setTimeout(() => {    ram.Setup(out);},2000);
+
+function run() {
+  let code = inp.value;
+  out = asm.Parse(asm.Syntax(code,proc.Instructions),proc.Instructions );
+  ram.Setup(out);
+}
+
+</script>

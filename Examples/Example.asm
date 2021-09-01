@@ -1,0 +1,10 @@
+;example program
+LDA 11
+LDX 22
+PHA
+PHX
+LDA 1
+LDX 2
+PLX
+PLA
+HALT

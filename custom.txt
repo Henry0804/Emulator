@@ -1,0 +1,77 @@
+0x00 = NO-OP
+
+0x01 = A to X   Zero flag set for transfer registers.
+0x02 = A to Y
+0x03 = X to A
+0x04 = Y to A
+
+0x10 = Store A using address.  Zero flag also set here.
+0x11 = Store X using address.
+0x12 = Store Y using address.
+0x13 = Store A using X,Y for address.
+
+0x14 = Load A using value.  Zero flag also set here.
+0x15 = load X using vlaue.
+0x16 = load Y using value.
+
+0x17 = Load A using address.
+0x18 = Load X using address.
+0x19 = Load Y using address.
+0x1A = Load A using X and Y address.
+
+
+
+0x20 = Add X and Y and put it in A.  Zero and carry flag set.
+0x21 = Subtraction.
+0x22 = (INA) Increment A register.
+0x23 = (INX) Increment X register.
+0x24 = (INY) Increment Y register.
+
+0x30 = Push A to stack
+0x31 = Push X to stack
+0x32 = Push Y to stack
+0x33 = Pull A from stack
+0x34 = Pull X from stack
+0x35 = Pull Y from stack
+
+-Jump instructions-
+0x40 = Jump to address
+0x41 = JSR, which jumps to an address and pushes the address to stack
+0x42 = RET, undo's the JSR and jumps out of an address
+0x43 = Branch not equal (BNE), jumps to an address if zero flag isn't set.
+0x44 = Branch on carry set (BCS)
+0x45 = Branch on zero set (BZS)
+
+-Flag instructions-
+
+0x50 = Read flags into A.
+0x51 = Set flag register.
+
+0xFD = TRG D = Trigger external device.
+0xFE = BRK = Breakpoint.
+0xFF = Halt
+
+
+A X Y registers.
+
+Available "actions":
+
+Store value in register to address.
+Store register A to address from X,Y
+
+Add value from X and Y and put it in A
+(and subtract)
+
+Transfer registers to other registers
+
+A push value of all registers, and a pull instruction.
+
+A JSR instruction for function-stuff, and a RET instruction to return.
+
+
+Available "flags":
+
+10000000
+ZERO
+01000000
+CARRY
