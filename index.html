@@ -10,12 +10,11 @@ RET</textarea>
 <button onclick="run();">Assemble</button><button onclick="proc.Exec();">Execute</button><button onclick="if (clock==null) {clock = setInterval(exec,0);startstop.innerText = 'Stop';} else {clearInterval(clock);clock = null;startstop.innerText = 'Start';}" id="startstop">Start</button><button onclick="speed = Number(prompt('SPEED: '));if (isNaN(speed)||speed>1000) {speed = 1;}">Set Speed</button>
 
 <br>
-
-<input type='text' id="file"></input><br>
-<button onclick='load();'>Load</button><button onclick='list();'>List</button>
+Load examples:
 <br>
 
-<div id='listView'></div>
+<a href='javascript:load("HelloWorld.asm")'>HelloWorld.asm</a>
+
 
 
 <br>
@@ -29,8 +28,7 @@ RET</textarea>
 
   let speed = 10;
 
-  function load() {
-    let v = file.value;
+  function load(v) {
     fetch(`./Examples/${v}`).then((d) => {
       d.text().then((d2) => {inp.value = d2;})
     });
