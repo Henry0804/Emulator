@@ -20,7 +20,8 @@ export default class Device {//Simple RAM device.
   }
 
   Reset() {
-    console.info(`[INFO] Ram device cannot reset!`);
+    console.info('Reset ram device.');
+    Data = new Uint8Array(2**16);
   }
 
   Write(a,d) {
