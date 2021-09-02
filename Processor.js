@@ -187,6 +187,17 @@ export default class Processor {
       item.Reset();
     });
 
+    this.Cycles = 0;
+    this.OpCode = null;
+    this.OpData = [];
+    this.OpTempData = [];
+    this.Address = 0;
+    this.StackPointer = 0x0100;
+    this.Register.X = 0;
+    this.Register.A = 0;
+    this.Register.Y = 0;
+    this.Flags.Zero = false;
+    this.Flags.Carry = false;
   }
 
 }
