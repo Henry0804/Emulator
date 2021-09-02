@@ -8,6 +8,7 @@ RET</textarea>
 <br>
 
 <button onclick="run();">Assemble</button><button onclick="proc.Exec();">Execute</button><button onclick="if (clock==null) {clock = setInterval(exec,0);startstop.innerText = 'Stop';} else {clearInterval(clock);clock = null;startstop.innerText = 'Start';}" id="startstop">Start</button><button onclick="speed = Number(prompt('SPEED: '));if (isNaN(speed)||speed>1000) {speed = 1;}">Set Speed</button><button onclick='proc.Reset();'>Reset</button>
+<button onclick='execAmount(Number(prompt("Enter amount of processes")));'>Exec Amount</button>
 
 <br>
 Load examples:
@@ -25,6 +26,13 @@ Load examples:
 <script>
 
   let clock = null;
+
+  function execAmount(a) {
+    for (var i = 0; i < a; i++) {
+      proc.Exec();
+    }
+
+  }
 
   let speed = 10;
 
