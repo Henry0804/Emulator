@@ -198,6 +198,7 @@ export default class Processor {
     this.Register.Y = 0;
     this.Flags.Zero = false;
     this.Flags.Carry = false;
+    this.Halt = false;
   }
 
 }
