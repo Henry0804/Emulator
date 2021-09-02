@@ -189,7 +189,10 @@ export function Parse(data,inst) {
       if (line=='.end') {dataType = null;continue;}
       //Otherwise start encoding the data line by line.
       if (dataType=='text') {
-        if (line.charAt(0)=='\\') {line = line.slice(1);}
+        if (line.charAt(0)=='\\') {
+          line = line.slice(1);
+          if (split[i+1]!='.end') {line+='\n';}
+        }
         line.split('').forEach((char, i2) => {
           out[pos] = char.charCodeAt(0);
           pos++;
