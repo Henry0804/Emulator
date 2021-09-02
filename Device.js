@@ -21,7 +21,7 @@ export default class Device {//Simple RAM device.
 
   Reset() {
     console.info('Reset ram device.');
-    Data = new Uint8Array(2**16);
+    this.Data = new Uint8Array(2**16);
   }
 
   Write(a,d) {
