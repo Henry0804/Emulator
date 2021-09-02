@@ -34,10 +34,10 @@ export function Syntax(code,inst) {
   for (var i = 0; i < split.length; i++) {
     let line = split[i];
 
-    if (line.startsWith(';')||line=='\n'||line=='') {continue;}
+    if (line.startsWith(';')||line=='\n'||line==''&&dataType==null) {continue;}
 
     //Check for labels
-    if (line.endsWith(':')) {out = out.concat(new Label(line.slice(0,line.length-1).trimStart(),pos));continue;}
+    if (line.endsWith(':')&&dataType==null) {out = out.concat(new Label(line.slice(0,line.length-1).trimStart(),pos));continue;}
 
     //Check for location changes.
     if (line.startsWith('/')) {pos = Number(line.slice(1));if (isNaN(pos)) {throw new Error(`Failed to parse number at line ${i+1}`);};continue;}
@@ -66,6 +66,7 @@ export function Syntax(code,inst) {
       }
       //Otherwise start encoding the data line by line.
       if (dataType=='text') {
+        if (line.charAt(0)=='\\') {line = line.slice(1);}
         line.split('').forEach((char, i2) => {
           pos++;
         });
@@ -165,10 +166,10 @@ export function Parse(data,inst) {
   for (var i = 0; i < split.length; i++) {
     let line = split[i];
 
-    if (line.startsWith(';')||line=='\n'||line=='') {continue;}
+    if (line.startsWith(';')||line=='\n'||line==''&&dataType==null) {continue;}
 
     //Check for labels
-    if (line.endsWith(':')) {continue;}
+    if (line.endsWith(':')&&dataType==null) {continue;}
 
     //Check for location changes.
     if (line.startsWith('/')) {pos = Number(line.slice(1));if (isNaN(pos)) {throw new Error(`Failed to parse number at line ${i+1}`);};continue;}
@@ -188,6 +189,7 @@ export function Parse(data,inst) {
       if (line=='.end') {dataType = null;continue;}
       //Otherwise start encoding the data line by line.
       if (dataType=='text') {
+        if (line.charAt(0)=='\\') {line = line.slice(1);}
         line.split('').forEach((char, i2) => {
           out[pos] = char.charCodeAt(0);
           pos++;
