@@ -26,6 +26,10 @@
 0x22 = (INA) Increment A register.
 0x23 = (INX) Increment X register.
 0x24 = (INY) Increment Y register.
+0x25 = (RLL) Roll bits left.
+0x26 = (RLR) Roll bits right.
+
+
 
 0x30 = Push A to stack
 0x31 = Push X to stack
@@ -47,7 +51,21 @@
 0x50 = Read flags into A.
 0x51 = Set flag register.
 
-0xFD = TRG D = Trigger external device.
+-Interrupt settings and cpu state-
+
+0x60 = SIL = Set interrupt location, using location
+0x61 = ITE = Enable interrupts
+0x62 = ITD = Disable interrupts
+0x63 = PHS = Push state
+0x64 = PLS = Pull state
+0x65 = ITR = Interrupt return (returns and enables interrupts)
+
+Note:
+The flag InterruptEnabled is not saved by PHS
+
+
+
+0xFD = TRG D = Trigger external device.  (not used often)
 0xFE = BRK = Breakpoint.
 0xFF = Halt
 
@@ -71,7 +89,5 @@ A JSR instruction for function-stuff, and a RET instruction to return.
 
 Available "flags":
 
-10000000
 ZERO
-01000000
 CARRY

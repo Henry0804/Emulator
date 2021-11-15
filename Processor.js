@@ -32,6 +32,32 @@ export default class Processor {
       t.StackPointer--;
       if (t.StackPointer<t.StackStart) {t.StackPointer = t.StackEnd;!proc.Debug || console.warn('Stack underflow!');}
       return t.ReadBus(t.StackPointer);
+    },
+
+    PushState: function PushState(proc,cycles) {
+      if (cycles==1) {proc.constructor.Operation.PushStack(proc.Register.A,proc);}
+      if (cycles==2) {proc.constructor.Operation.PushStack(proc.Register.X,proc);}
+      if (cycles==3) {proc.constructor.Operation.PushStack(proc.Register.Y,proc);}
+
+      if (cycles==4) {proc.constructor.Operation.PushStack(proc.Address&0xff,proc);}
+      if (cycles==5) {proc.constructor.Operation.PushStack((proc.Address>>8)&0xff,proc);}
+    },
+
+    PullState: function PullState(proc,cycles,data) {
+      if (cycles==5) {data.push(proc.constructor.Operation.PullStack(proc));}//a
+      if (cycles==4) {data.push(proc.constructor.Operation.PullStack(proc));}//x
+      if (cycles==3) {data.push(proc.constructor.Operation.PullStack(proc));}//y
+
+      if (cycles==2) {data.push(proc.constructor.Operation.PullStack(proc));}//low
+      if (cycles==1) {data.push(proc.constructor.Operation.PullStack(proc)<<8);}//top
+
+      //end code:
+      if (cycles==5) {
+        proc.Address = data[0]|data[1];
+        proc.Register.Y = data[2];
+        proc.Register.X = data[3];
+        proc.Register.A = data[4];
+      }
     }
 
   }//End of operation object
@@ -69,6 +95,11 @@ export default class Processor {
   OpData = [];
   OpTempData = [];
   Address = 0x0000;
+  InterruptAddress = 0x0000;//The address to jump to on interrupts
+  InterruptEnabled = false;//If interrupts should be enabled
+  InterruptActive = false;//If an interrupt is currently being called
+  InterruptCycles = 0;//The current interrupt's cycle count
+
   Cycles = 0;
 
   DataLength = 8;
@@ -119,6 +150,19 @@ export default class Processor {
 
   }
 
+  Interrupt() {
+    //Calls an interrupt after the current instruction is over.
+    if (this.InterruptActive) return;
+    //Do not call more then 1 interrupt at once
+    if (!this.InterruptEnabled) return;
+
+
+    if (this.OpCode==null) {
+      this.InterruptActive = true;
+      this.InterruptEnabled = false;
+    }
+  }
+
 
   Exec() {
 
@@ -126,6 +170,17 @@ export default class Processor {
 
     if (this.OpData.length>100) {
       throw new Error("Invalid OpData length.");
+    }
+
+    if (this.InterruptActive) {
+      this.InterruptCycles++;
+      this.constructor.Operation.PushState(this,this.InterruptCycles);
+      if (this.InterruptCycles==5) {
+        this.InterruptActive = false;
+        this.InterruptCycles = 0;
+        this.Address = this.InterruptAddress;
+      }
+      return;
     }
 
 
@@ -177,9 +232,9 @@ export default class Processor {
 
 
 
+    if ((this.Address>>16)>0) {console.warn('Address value outside of normal range!');this.Address = this.Address&0xffff;}
 
-
-    this.Address = this.Address&0xffff;
+    //this.Address = this.Address&0xffff;
   }
 
   Reset() {

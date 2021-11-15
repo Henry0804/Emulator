@@ -287,6 +287,33 @@ out[0x24] = class INY {
   static Cycles = 1;
 }
 
+out[0x25] = class RLL {
+  //roll left
+  static DataLength = 1;
+  static Cycles = 1;
+  static Exec(proc,data) {
+    proc.Register.A = Math.floor(proc.Register.A<<data[0]);
+
+    proc.Flags.Zero = proc.Register.A==0;
+    proc.Flags.Carry = (proc.Register.A>>16)>0;
+  }
+}
+
+
+out[0x26] = class RLR {
+  //roll left
+  static DataLength = 1;
+  static Cycles = 1;
+  static Exec(proc,data) {
+    proc.Register.A = Math.floor(proc.Register.A>>data[0]);
+
+    proc.Flags.Zero = proc.Register.A==0;
+    proc.Flags.Carry = (proc.Register.A>>16)>0;
+  }
+}
+
+
+
 
 
 out[0x30] = class PHA {
@@ -497,6 +524,86 @@ out[0x51] = class SFG {//Set flag
 }
 
 
+
+out[0x60] = class SIL {
+  //Set interrupt location
+  static DataLength = 2;
+  static Cycles = 1;
+  static Exec(proc,data) {
+    out = (data[0]<<8)+data[1];
+    proc.InterruptAddress = out;
+
+
+  }
+
+}
+
+out[0x61] = class ITE {
+  //Enable interrupts
+  static DataLength = 0;
+  static Cycles = 1;
+  static Exec(proc,data) {
+    proc.InterruptEnabled = true;
+
+
+  }
+
+}
+
+out[0x62] = class ITD {
+  //Disable interrupts
+  static DataLength = 0;
+  static Cycles = 1;
+  static Exec(proc,data) {
+    proc.InterruptEnabled = false;
+
+
+  }
+
+}
+
+out[0x63] = class PHS {
+  static DataLength = 0;
+  //Stuff to store:
+  //3 registers, A X Y
+  //Return location
+  static Cycles = 5;
+  static Exec(proc,data,cycles) {
+    //Get current address onto stack.
+    if (cycles==1) proc.Address--;
+
+    proc.constructor.Operation.PushState(proc,cycles);
+
+    if (cycles==5) proc.Address++;
+
+
+
+  }
+}
+
+out[0x64] = class PLS {
+  static DataLength = 0;
+  static Cycles = 5;
+  static Exec(proc,data,cycles) {
+    proc.constructor.Operation.PullState(proc,cycles,proc.OpTempData);
+  }
+}
+
+out[0x65] = class ITR {
+  //Returns and enables interrupts.
+  static DataLength = 0;
+  static Cycles = 5;
+  static Exec(proc,data,cycles) {
+    proc.constructor.Operation.PullState(proc,cycles,proc.OpTempData);
+    if (cycles==5) {
+      proc.InterruptEnabled = true;
+    }
+  }
+}
+
+
+
+
 out[0xFD] = class TRG {
   static DataLength = 2;
   static Cycles = 1;
@@ -513,13 +620,14 @@ out[0xFE] = class BRK {
   static Cycles = 1;
   static Exec(proc,data) {
     console.info(`BREAKPOINT HIT!
-      Address: ${proc.Address}`);
+  Address: ${proc.Address}
+  Registers: ${JSON.stringify(proc.Register)}`);
     if (proc.Debug) {debugger;}
 
   }
 }
 
-out[0xff] = class HALT {
+out[0xFF] = class HALT {
   static DataLength = 0;
   static Cycles = 1;
   static Exec(proc,data) {
